@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "workflows" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "workflows" ]
 
 jobs:
   build:
@@ -23,4 +23,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
+      env:
+        idea.paths.selector: "AndroidStudio"
       run: ./gradlew build
