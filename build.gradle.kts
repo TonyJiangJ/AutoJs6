@@ -59,9 +59,22 @@ buildscript {
                 "fallback" to "1.8.21", /* May 3, 2023. */
             ),
         ),
+        "cli" to mapOf(
+            "android" to mapOf(
+                "fallback" to "7.4.2", /* May 3, 2023. */
+            ),
+            "kotlin" to mapOf(
+                "fallback" to "1.8.21", /* May 3, 2023. */
+            ),
+        )
     )
 
-    val platform = System.getProperty("idea.paths.selector")
+    var platform = System.getProperty("idea.paths.selector")
+    if (platform == null) {
+        platform = "cli"
+    }
+    println("current platform: $platform")
+
     val platformIdentifierForAS = "AndroidStudio"
     val platformIdentifierForIdea = "IntelliJIdea"
 
@@ -71,13 +84,13 @@ buildscript {
     val platformVersion = when {
         isPlatformAS -> platform.substring(platformIdentifierForAS.length)
         isPlatformIdea -> platform.substring(platformIdentifierForIdea.length)
-        else -> "Unknown"
+        else -> "cli"
     }
 
     val platformType = when {
         isPlatformAS -> "as"
         isPlatformIdea -> "idea"
-        else -> throw Exception("Unknown platform: $platform")
+        else -> "cli"
     }
 
     val platformNicknameForAS = mapOf(
@@ -106,7 +119,7 @@ buildscript {
             "Android Studio$platformNick$previewSuffix | $niceVersion"
         }
         isPlatformIdea -> "IntelliJ IDEA $platformVersion"
-        else -> "Unknown"
+        else -> "cli running"
     }.let { println("Platform: $it") }
 
     /* --== repositories ==-- */
