@@ -30,13 +30,12 @@ def zipArchives = [
 ]
 
 android {
-    namespace = "com.baidu.paddleocr"
-
-    ndkVersion versionNdk
+    namespace = "com.baidu.paddle.lite.ocr"
+    ndkVersion '21.1.6352462'
     compileSdk 33
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion 33
 
         externalNativeBuild {
             cmake {
@@ -63,8 +62,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ["*.jar"], dir: "libs")
-    implementation project(path: ":libs:org.opencv-${versionOpencv}")
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(path: ':libs:org.opencv-4.5.5')
 }
 
 ext {
@@ -104,52 +103,4 @@ tasks.register("downloadAndExtractArchives", DefaultTask) {
         }
     }
 }
-
 preBuild.dependsOn downloadAndExtractArchives
-
-class Versions {
-
-    String opencv
-    String ndk
-    String cmake
-
-    Versions(String filePath) {
-        File file = new File(filePath)
-        if (!file.canRead()) {
-            throw FileNotFoundException("Can't read file '$filePath'")
-        }
-        Properties properties = new Properties()
-        properties.load(new FileInputStream(file))
-        opencv = properties["OPENCV_VERSION"] as String
-        ndk = properties["NDK_VERSION"] as String
-        cmake = properties["CMAKE_VERSION"] as String
-    }
-
-    void showInfo() {
-        def title = "Version information for paddleocr library"
-
-        def infoOpencv = "OpenCV version: $opencv"
-        def infoNdk = "NDK version: $ndk"
-        def infoCmake = "CMake version: $cmake"
-
-        def maxLength = maxOf([title, infoOpencv, infoNdk, infoCmake].collect { it.length() })
-
-        [
-                "=".repeat(maxLength),
-                title,
-                "-".repeat(maxLength),
-                infoOpencv,
-                infoNdk,
-                infoCmake,
-                "=".repeat(maxLength),
-                "",
-        ].each { println(it) }
-    }
-
-    private static int maxOf(List<Integer> integers) {
-        int max = 0
-        integers.each { max = Math.max(max, it) }
-        return max
-    }
-
-}
