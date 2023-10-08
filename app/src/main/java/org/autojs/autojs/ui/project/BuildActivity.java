@@ -79,6 +79,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     private boolean mIsDefaultIcon = true;
     private boolean mIsApkTemplateInAssets = false;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +90,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         mSourcePath = binding.sourcePath;
         mSourcePathContainer = binding.sourcePathContainer;
         mTemplatePathContainer = binding.templatePathContainer;
-        mTemplatePath=binding.templatePath;
+        mTemplatePath = binding.templatePath;
         mOutputPath = binding.outputPath;
         mAppName = binding.appName;
         mPackageName = binding.packageName;
@@ -111,10 +112,10 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         if (mSource != null) {
             setupWithSourceFile(new ScriptFile(mSource));
         }
-//        mIsApkTemplateInAssets = checkApkTemplateInAssets();
-//        if (!mIsApkTemplateInAssets) {
-//            checkApkBuilderPlugin();
-//        }
+        mIsApkTemplateInAssets = checkApkTemplateInAssets();
+        if (mIsApkTemplateInAssets) {
+            mTemplatePath.setText("file:///android_asset/template.apk");
+        }
     }
 
     private boolean checkApkTemplateInAssets() {
@@ -239,7 +240,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     }
 
     void buildApk() {
-        if (mTemplatePath.getText()==null && !ApkBuilderPluginHelper.isPluginAvailable(this)) {
+        if (mTemplatePath.getText() == null && !ApkBuilderPluginHelper.isPluginAvailable(this)) {
             ViewUtils.showToast(this, R.string.text_apk_builder_plugin_unavailable);
             showPluginDownloadDialog();
             return;
@@ -318,7 +319,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     }
 
     private ApkBuilder callApkBuilder(File tmpDir, File outApk, ApkBuilder.AppConfig appConfig) throws Exception {
-        InputStream templateApk = mTemplatePath.getText()!=null ? new java.io.FileInputStream(mTemplatePath.getText().toString()) : ApkBuilderPluginHelper.openTemplateApk(BuildActivity.this);
+        InputStream templateApk = mTemplatePath.getText() != null ? (mTemplatePath.getText().toString().equals("file:///android_asset/template.apk") ? getAssets().open("template.apk") : new java.io.FileInputStream(mTemplatePath.getText().toString())) : ApkBuilderPluginHelper.openTemplateApk(BuildActivity.this);
         return new ApkBuilder(templateApk, outApk, tmpDir.getPath())
                 .setProgressCallback(BuildActivity.this)
                 .prepare()
