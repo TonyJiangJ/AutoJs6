@@ -905,7 +905,7 @@
     <string name="text_function">Function</string>
     <string name="text_formatting_completed">Formatting completed</string>
     <string name="text_failed_to_format">Failed to format</string>
-    <string name="text_template_apk_path">模板apk路径</string>
+    <string name="text_template_apk_path">template apk path</string>
 
     <plurals name="text_items_total_sum">
         <item quantity="one">Total: %d item</item>
