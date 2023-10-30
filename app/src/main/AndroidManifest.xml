@@ -53,6 +53,9 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -74,9 +77,9 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <uses-permission
-            android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"
-            tools:ignore="SystemPermissionTypo" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
 
     <uses-permission
             android:name="android.permission.DUMP"
@@ -265,7 +268,9 @@
 
         <service android:name="org.autojs.autojs.ui.enhancedfloaty.FloatyService" />
 
-        <service android:name="org.autojs.autojs.external.foreground.MainActivityForegroundService" />
+        <service
+                android:name="org.autojs.autojs.external.foreground.MainActivityForegroundService"
+                android:foregroundServiceType="systemExempted" />
 
         <service android:name="org.autojs.autojs.external.ScriptExecutionIntentService" />
 
@@ -595,9 +600,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.autojs.autojs.inrt.LogActivity" />
+        <activity
+                android:name="org.autojs.autojs.inrt.LogActivity"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <activity android:name="org.autojs.autojs.inrt.SettingsActivity" />
+        <activity
+                android:name="org.autojs.autojs.inrt.SettingsActivity"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
