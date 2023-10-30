@@ -8,8 +8,6 @@ import static android.util.Log.VERBOSE;
 import static android.util.Log.WARN;
 import static android.util.Log.d;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 
 import org.apache.log4j.Level;
@@ -24,11 +22,10 @@ import java.util.Locale;
 /**
  * Created by Stardust on 2017/10/22.
  */
-@SuppressLint("ConstantLocale")
 public class GlobalConsole extends ConsoleImpl {
-    private static final String TAG = "GlobalConsole";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
+    private static final String TAG = GlobalConsole.class.getSimpleName();
     private static final Logger LOGGER = Logger.getLogger(GlobalConsole.class);
+    private final SimpleDateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
 
     public GlobalConsole(UiHandler uiHandler) {
         super(uiHandler);
@@ -38,14 +35,14 @@ public class GlobalConsole extends ConsoleImpl {
     @NonNull
     public String println(int level, @NonNull CharSequence charSequence) {
         String log = String.format(Locale.getDefault(), "%s/%s: %s",
-                DATE_FORMAT.format(new Date()), getLevelChar(level), charSequence);
+                mDateFormat.format(new Date()), getLevelChar(level), charSequence);
         LOGGER.log(toLog4jLevel(level), log);
         d(TAG, log);
         super.println(level, log);
         return log;
     }
 
-    private Priority toLog4jLevel(int level) {
+    protected Priority toLog4jLevel(int level) {
         switch (level) {
             case VERBOSE, DEBUG -> {
                 return Level.DEBUG;
@@ -66,7 +63,7 @@ public class GlobalConsole extends ConsoleImpl {
         }
     }
 
-    private String getLevelChar(int level) {
+    protected String getLevelChar(int level) {
         return switch (level) {
             case VERBOSE -> "V";
             case DEBUG -> "D";

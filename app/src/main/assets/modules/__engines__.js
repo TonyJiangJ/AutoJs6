@@ -3,7 +3,7 @@
 let { files } = global;
 
 /**
- * @param {org.autojs.autojs.runtime.ScriptRuntime} scriptRuntime
+ * @param {ScriptRuntime} scriptRuntime
  * @param {org.mozilla.javascript.Scriptable | global} scope
  * @return {Internal.Engines}
  */
@@ -18,7 +18,7 @@ module.exports = function (scriptRuntime, scope) {
              * @extends Internal.Engines
              */
             const Engines = function () {
-                // Empty class body.
+                /* Empty body. */
             };
 
             Engines.prototype = {
@@ -71,7 +71,7 @@ module.exports = function (scriptRuntime, scope) {
         setEngineExecArgv() {
             engines.myEngine().setExecArgv(/* @IIFE */ ((e) => {
                 let execArgv = {};
-                let iterator = e.getTag(ExecutionConfig.CREATOR.getTag()).arguments.entrySet().iterator();
+                let iterator = e.getTag(ExecutionConfig.tag).arguments.entrySet().iterator();
                 while (iterator.hasNext()) {
                     let entry = iterator.next();
                     execArgv[entry.getKey()] = entry.getValue();

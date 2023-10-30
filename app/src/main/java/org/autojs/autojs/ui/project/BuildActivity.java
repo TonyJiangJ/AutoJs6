@@ -1,9 +1,12 @@
 package org.autojs.autojs.ui.project;
 
+import static org.autojs.autojs.apkbuilder.ApkBuilderPluginHelper.TEMPLATE_APK_PATH;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
@@ -21,6 +25,7 @@ import org.autojs.autojs.apkbuilder.ApkBuilder;
 import org.autojs.autojs.apkbuilder.ApkBuilderPluginHelper;
 import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.model.script.ScriptFile;
+import org.autojs.autojs.pref.Language;
 import org.autojs.autojs.project.ProjectConfig;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.filechooser.FileChooserDialogBuilder;
@@ -57,6 +62,8 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     private static final String LOG_TAG = "BuildActivity";
     private static final Pattern REGEX_PACKAGE_NAME = Pattern.compile("^([A-Za-z][A-Za-z\\d_]*\\.)+([A-Za-z][A-Za-z\\d_]*)$");
     EditText mSourcePath;
+    EditText mTemplatePath;
+    View mTemplatePathContainer;
     View mSourcePathContainer;
     EditText mOutputPath;
     EditText mAppName;
@@ -70,8 +77,8 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     private MaterialDialog mProgressDialog;
     private String mSource;
     private boolean mIsDefaultIcon = true;
-    private boolean mIsApkTemplateInAssets = false;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +88,8 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
 
         mSourcePath = binding.sourcePath;
         mSourcePathContainer = binding.sourcePathContainer;
+        mTemplatePathContainer = binding.templatePathContainer;
+        mTemplatePath = binding.templatePath;
         mOutputPath = binding.outputPath;
         mAppName = binding.appName;
         mPackageName = binding.packageName;
@@ -92,6 +101,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         binding.fab.setOnClickListener(v -> buildApk());
         binding.selectSource.setOnClickListener(v -> selectSourceFilePath());
         binding.selectOutput.setOnClickListener(v -> selectOutputDirPath());
+        binding.selectTemplate.setOnClickListener(v -> selectTemplateFilePath());
         mIcon.setOnClickListener(v -> selectIcon());
 
         setToolbarAsBack(R.string.text_build_apk);
@@ -99,19 +109,22 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         if (mSource != null) {
             setupWithSourceFile(new ScriptFile(mSource));
         }
-        mIsApkTemplateInAssets = checkApkTemplateInAssets();
-        if (!mIsApkTemplateInAssets) {
-            checkApkBuilderPlugin();
+        if (checkApkTemplateInAssets()) {
+            mTemplatePath.setText(R.string.path_android_asset_template);
         }
     }
 
     private boolean checkApkTemplateInAssets() {
         try {
-            if (Arrays.asList(getAssets().list("")).contains("template.apk")) {
+            String[] files = getAssets().list("");
+            if (files != null && Arrays.asList(files).contains(TEMPLATE_APK_PATH)) {
                 return true;
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null) {
+                Log.e(LOG_TAG, msg);
+            }
         }
         return false;
     }
@@ -149,13 +162,37 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         }
         mOutputPath.setText(dir);
         mAppName.setText(file.getSimplifiedName());
-        mPackageName.setText(getString(R.string.format_default_package_name, System.currentTimeMillis()));
+        mPackageName.setText(getString(R.string.format_default_package_name, getPackageNameSuffix(file)));
         setSource(file);
+    }
+
+    private static String getPackageNameSuffix(ScriptFile file) {
+        String name = file.getSimplifiedName()
+                .replaceAll("[^\\w$]+", "_");
+        if (name.matches("^\\d.*")) {
+            name = "app_" + name;
+        }
+        return name.toLowerCase(Language.getPrefLanguage().getLocale());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+    }
+
+    void selectTemplateFilePath() {
+        new FileChooserDialogBuilder(this)
+                .title(R.string.text_template_apk_path)
+                .dir(Environment.getExternalStorageDirectory().getPath(), Environment.getExternalStorageDirectory().getPath())
+                .singleChoice(this::setTemplate)
+                .show();
+
+    }
+
+    private void setTemplate(File file) {
+        if (file.getName().toLowerCase().startsWith("inrt") && file.getName().toLowerCase().endsWith(".apk") && file.isFile()) {
+            mTemplatePath.setText(file.getPath());
+        }
     }
 
     void selectSourceFilePath() {
@@ -199,8 +236,9 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     }
 
     void buildApk() {
-        if (!mIsApkTemplateInAssets && !ApkBuilderPluginHelper.isPluginAvailable(this)) {
+        if (mTemplatePath.getText() == null && !ApkBuilderPluginHelper.isPluginAvailable(this)) {
             ViewUtils.showToast(this, R.string.text_apk_builder_plugin_unavailable);
+            showPluginDownloadDialog();
             return;
         }
         if (!checkInputs()) {
@@ -277,7 +315,11 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     }
 
     private ApkBuilder callApkBuilder(File tmpDir, File outApk, ApkBuilder.AppConfig appConfig) throws Exception {
-        InputStream templateApk = mIsApkTemplateInAssets ? getAssets().open("template.apk") : ApkBuilderPluginHelper.openTemplateApk(BuildActivity.this);
+        InputStream templateApk = mTemplatePath.getText() != null
+                ? mTemplatePath.getText().toString().equals(getString(R.string.path_android_asset_template))
+                ? getAssets().open(TEMPLATE_APK_PATH)
+                : new java.io.FileInputStream(mTemplatePath.getText().toString())
+                : ApkBuilderPluginHelper.openTemplateApk(BuildActivity.this);
         return new ApkBuilder(templateApk, outApk, tmpDir.getPath())
                 .setProgressCallback(BuildActivity.this)
                 .prepare()
@@ -319,24 +361,23 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     }
 
     @Override
-    public void onPrepare(ApkBuilder builder) {
+    public void onPrepare(@NonNull ApkBuilder builder) {
         mProgressDialog.setContent(R.string.apk_builder_prepare);
     }
 
     @Override
-    public void onBuild(ApkBuilder builder) {
+    public void onBuild(@NonNull ApkBuilder builder) {
         mProgressDialog.setContent(R.string.apk_builder_build);
-
     }
 
     @Override
-    public void onSign(ApkBuilder builder) {
+    public void onSign(@NonNull ApkBuilder builder) {
         mProgressDialog.setContent(R.string.apk_builder_package);
 
     }
 
     @Override
-    public void onClean(ApkBuilder builder) {
+    public void onClean(@NonNull ApkBuilder builder) {
         mProgressDialog.setContent(R.string.apk_builder_clean);
     }
 

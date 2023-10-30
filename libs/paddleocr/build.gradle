@@ -1,20 +1,50 @@
-plugins {
-    id 'com.android.library'
-}
 import java.security.MessageDigest
 
+/**
+ * PaddleOCR (https://github.com/PaddlePaddle/PaddleOCR) build script (Groovy).
+ *
+ * Created by TonyJiangWJ (https://github.com/TonyJiangWJ) on Aug 7, 2023.
+ * Modified by TonyJiangWJ (https://github.com/TonyJiangWJ) as of Aug 11, 2023.
+ * Modified by SuperMonster003 as of Sep 4, 2023.
+ */
+
+plugins {
+    id "com.android.library"
+}
+
+def versions = new Versions("$rootDir/version.properties")
+
+def versionOpencv = versions.opencv
+def versionNdk = versions.ndk
+def versionCmake = versions.cmake
+
+def zipArchives = [
+        // @Hint by TonyJiangWJ on Aug 7, 2023.
+        //   ! 下载 OpenCV 源码包 (默认为 4.2.0).
+        //   ! 和 Auto.js 中的版本 (如 4.8.0) 不匹配会产生冲突,
+        //   ! 可按需修改 version.properties 中对应内容.
+        [
+                "src" : "https://github.com/opencv/opencv/releases/download" +
+                        "/${versionOpencv}/opencv-${versionOpencv}-android-sdk.zip",
+                "dest": "OpenCV",
+        ],
+]
+
 android {
-    namespace = "com.baidu.paddleocr"
-    ndkVersion '21.1.6352462'
-    compileSdk 33
+    namespace = "com.baidu.paddle.lite.ocr"
+
+    ndkVersion versionNdk
+    compileSdk 34
     defaultConfig {
-        minSdkVersion 24
-        targetSdkVersion 31
+        /* minSdk 默认为 23，这里修改为与 AutoJs6 最低 SDK 版本一致的 24. */
+        minSdk 24
+        targetSdk 34
 
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions -Wno-format"
-                arguments '-DANDROID_PLATFORM=android-23', '-DANDROID_STL=c++_shared' ,"-DANDROID_ARM_NEON=TRUE"
+                /* '-DANDROID_PLATFORM' 默认为 'android-23', 这里修改为与 AutoJs6 最低 SDK 版本一致的 24. */
+                arguments '-DANDROID_PLATFORM=android-24', '-DANDROID_STL=c++_shared', "-DANDROID_ARM_NEON=TRUE"
             }
         }
         ndk {
@@ -30,57 +60,154 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
+            version versionCmake
         }
     }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(path: ':libs:org.opencv-4.5.5')
+    implementation fileTree(include: ["*.jar"], dir: "libs")
+    implementation project(path: ":libs:org.opencv-${versionOpencv}")
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 }
 
-/**
- * 下载opencv4.5.5源码包 默认为4.2.0 和 AutoJS中的版本不匹配会产生冲突 这里进行修改
- */
-def zipArchives = [
-        [
-                'src' : 'https://github.com/opencv/opencv/releases/download/4.5.5/opencv-4.5.5-android-sdk.zip',
-                'dest': 'OpenCV'
-        ]
-]
+ext {
+    versions.showInfo()
+}
 
-/**
- * 首次导入最好手动运行一下这个task下载依赖的包
- */
-tasks.register('downloadAndExtractArchives', DefaultTask) {
-    doFirst {
-        println "Downloading and extracting archives including libs and models"
-    }
+// @Hint by TonyJiangWJ on Aug 7, 2023.
+//   ! 首次导入最好手动运行一下这个 task 下载依赖的包.
+tasks.register("downloadAndExtractArchives", DefaultTask) {
     doLast {
         // Prepare cache folder for archives
         String cachePath = "cache"
         if (!file("${cachePath}").exists()) {
             mkdir "${cachePath}"
         }
-        zipArchives.eachWithIndex { archive, index ->
-            MessageDigest messageDigest = MessageDigest.getInstance('MD5')
+        zipArchives.each { archive ->
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5")
             messageDigest.update(archive.src.bytes)
             String cacheName = new BigInteger(1, messageDigest.digest()).toString(32)
-            // Download the target archive if not exists
-            boolean copyFiles = !file("${archive.dest}").exists()
-            if (!file("${cachePath}/${cacheName}.zip").exists()) {
-                ant.get(src: archive.src, dest: file("${cachePath}/${cacheName}.zip"))
-                copyFiles = true; // force to copy files from the latest archive files
+
+            def cacheSrc = archive.src
+            def cacheDest = file("${cachePath}/${cacheName}.zip")
+            def libDest = archive.dest
+            def versionNameFileName = "opencv-${versionOpencv}.version"
+            def versionNameFile = file(new File(libDest, versionNameFileName))
+
+            boolean copyFiles = false
+
+            if (cacheDest.exists()) {
+                println("No need to download files as the cached archive exists")
+                if (versionNameFile.exists()) {
+                    println("No need to extract cached archive as the version name file exists")
+                } else {
+                    println("Cached archive needs to be extracted as the version name file doesn't exist")
+                    copyFiles = true
+                }
+            } else {
+                if (versionNameFile.exists()) {
+                    println("No need to download files as the version name file exists")
+                } else {
+                    def title = "Downloading and extracting the archive file including libs and models..."
+                    def srcInfo = "Source: ${cacheSrc}"
+                    def destInfo = "Destination: ${cacheDest}"
+                    def hintInfo = [
+                            "If the download gets stuck and won't finish,",
+                            "try downloading the source file with tools like IDM (Internet Download Manager),",
+                            "then renaming it into the destination path above.",
+                    ]
+
+                    def maxLength = [
+                            [title, srcInfo, destInfo].max { it.length() },
+                            hintInfo.max { it.length() },
+                    ].max { it.length() }.length()
+
+                    def infoList = [
+                            "=".repeat(maxLength),
+                            title,
+                            "-".repeat(maxLength),
+                            srcInfo,
+                            destInfo,
+                            "-".repeat(maxLength),
+                            hintInfo.join("\n"),
+                            "=".repeat(maxLength),
+                            "",
+                    ]
+                    infoList.forEach { println(it) }
+
+                    ant.get(src: cacheSrc, dest: cacheDest)
+
+                    // Force to copy files from the latest archive files
+                    copyFiles = true
+                }
             }
             // Extract the target archive if its dest path does not exists
             if (copyFiles) {
+                if (file(libDest).exists()) {
+                    println("Delete old files in \"${file(libDest)}\"")
+                    delete(libDest)
+                }
                 copy {
                     from zipTree("${cachePath}/${cacheName}.zip")
-                    into "${archive.dest}"
+                    into libDest
+                }
+                println("All libs and models extracted into \"${file(libDest)}\"")
+                if (!versionNameFile.exists()) {
+                    versionNameFile.createNewFile()
+                    println("Version name file \"${versionNameFileName}\" created")
                 }
             }
         }
     }
 }
+
 preBuild.dependsOn downloadAndExtractArchives
+
+class Versions {
+
+    String opencv
+    String ndk
+    String cmake
+
+    Versions(String filePath) {
+        File file = new File(filePath)
+        if (!file.canRead()) {
+            throw FileNotFoundException("Can't read file '$filePath'")
+        }
+        Properties properties = new Properties()
+        properties.load(new FileInputStream(file))
+        opencv = properties["OPENCV_VERSION"] as String
+        ndk = properties["NDK_VERSION"] as String
+        cmake = properties["CMAKE_VERSION"] as String
+    }
+
+    void showInfo() {
+        def title = "Version information for paddleocr library"
+
+        def infoOpencv = "OpenCV version: $opencv"
+        def infoNdk = "NDK version: $ndk"
+        def infoCmake = "CMake version: $cmake"
+
+        def maxLength = maxOf([title, infoOpencv, infoNdk, infoCmake].collect { it.length() })
+
+        [
+                "=".repeat(maxLength),
+                title,
+                "-".repeat(maxLength),
+                infoOpencv,
+                infoNdk,
+                infoCmake,
+                "=".repeat(maxLength),
+                "",
+        ].each { println(it) }
+    }
+
+    private static int maxOf(List<Integer> integers) {
+        int max = 0
+        integers.each { max = Math.max(max, it) }
+        return max
+    }
+
+}

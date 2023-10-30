@@ -1,8 +1,7 @@
 package org.autojs.autojs.ui.main
 
-import android.Manifest.permission
+import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,7 +12,6 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
@@ -36,11 +34,9 @@ import org.autojs.autojs.permission.DisplayOverOtherAppsPermission
 import org.autojs.autojs.permission.ManageAllFilesPermission
 import org.autojs.autojs.permission.PostNotificationPermission
 import org.autojs.autojs.pref.Pref
-import org.autojs.autojs.runtime.api.AppUtils.Companion.hideLauncherIcon
-import org.autojs.autojs.runtime.api.AppUtils.Companion.showLauncherIcon
+import org.autojs.autojs.runtime.api.WrappedShizuku
 import org.autojs.autojs.theme.ThemeColorManager.addViewBackground
 import org.autojs.autojs.ui.BaseActivity
-import org.autojs.autojs.ui.doc.DocumentationActivity
 import org.autojs.autojs.ui.doc.DocumentationFragment
 import org.autojs.autojs.ui.enhancedfloaty.FloatyService
 import org.autojs.autojs.ui.explorer.ExplorerView
@@ -55,8 +51,7 @@ import org.autojs.autojs.ui.settings.PreferencesActivity
 import org.autojs.autojs.ui.widget.DrawerAutoClose
 import org.autojs.autojs.ui.widget.SearchViewItem
 import org.autojs.autojs.util.ForegroundServiceUtils
-import org.autojs.autojs.util.StringUtils
-import org.autojs.autojs.util.UpdateUtils.autoCheckForUpdatesIfNeededWithSnackbar
+import org.autojs.autojs.util.UpdateUtils
 import org.autojs.autojs.util.ViewUtils
 import org.autojs.autojs.util.WorkingDirectoryUtils
 import org.autojs.autojs6.R
@@ -86,7 +81,7 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
     val requestMultiplePermissionsLauncher = registerForActivityResult(RequestMultiplePermissions()) {
         it.forEach { (key: String, isGranted: Boolean) ->
             Log.d(TAG, "$key: $isGranted")
-            if (key == "android.permission.POST_NOTIFICATIONS") {
+            if (key == Manifest.permission.POST_NOTIFICATIONS) {
                 Pref.putBoolean(R.string.key_post_notification_permission_requested, true)
             }
         }
@@ -110,13 +105,9 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
 
         @Suppress("DEPRECATION")
         ViewUtils.appendSystemUiVisibility(this, View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+        ViewUtils.registerOnSharedPreferenceChangeListener(this)
 
-        Pref.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == StringUtils.key(R.string.key_keep_screen_on_when_in_foreground)) {
-                configKeepScreenOnWhenInForeground()
-            }
-        }
-
+        WrappedShizuku.onCreate()
         ExplorerView.clearViewStates()
         setUpToolbar()
         setUpTabViewPager()
@@ -126,13 +117,18 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
 
     override fun onPostResume() {
         recreateIfNeeded()
-        autoCheckForUpdatesIfNeededWithSnackbar(this, android.R.id.content)
+        UpdateUtils.autoCheckForUpdatesIfNeededWithSnackbar(this)
         super.onPostResume()
     }
 
+    override fun onStart() {
+        super.onStart()
+        WrappedShizuku.bindUserServiceIfNeeded()
+    }
+
     private fun recreateIfNeeded() {
-        if (sShouldRecreateMainActivity) {
-            setShouldRecreateMainActivity(false)
+        if (shouldRecreateMainActivity) {
+            shouldRecreateMainActivity = false
             recreate()
             Explorers.workspace().refreshAll()
         }
@@ -206,16 +202,15 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
     }
 
     fun rebirth(view: View) {
-        val context = view.context as Activity
-        context.finish()
+        val context = view.context as MainActivity
         context.packageManager.getLaunchIntentForPackage(context.packageName)?.let {
             context.startActivity(Intent.makeRestartActivityTask(it.component))
         }
-        Process.killProcess(Process.myPid())
+        context.exitCompletely()
     }
 
     fun exitCompletely() {
-        FloatyWindowManger.hideCircularMenu(!isFinishing)
+        FloatyWindowManger.hideCircularMenuAndSaveState()
         ForegroundServiceUtils.stopServiceIfNeeded(this, MainActivityForegroundService::class.java)
         stopService(Intent(this, FloatyService::class.java))
         AutoJs.instance.scriptEngineService.stopAll()
@@ -240,13 +235,13 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
     }
 
     private fun getGrantResult(permissions: Array<String>, grantResults: IntArray): Int {
-        val i = listOf(*permissions).indexOf(permission.READ_EXTERNAL_STORAGE)
+        val i = listOf(*permissions).indexOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         return if (i < 0) 2 else grantResults[i]
     }
 
     override fun getOnActivityResultDelegateMediator() = mActivityResultMediator
 
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
     override fun onBackPressed() {
         val fragment = mPagerAdapter.getStoredFragment(mViewPager.currentItem)
         if (fragment is BackPressedHandler) {
@@ -255,7 +250,6 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
             }
         }
         if (!mBackPressObserver.onBackPressed(this)) {
-            @Suppress("DEPRECATION")
             super.onBackPressed()
         }
     }
@@ -341,48 +335,22 @@ class MainActivity : BaseActivity(), DelegateHost, HostActivity {
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
+        WrappedShizuku.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
-        configKeepScreenOnWhenInForeground()
-        configDocumentationLauncherIcon()
-    }
-
-    private fun configKeepScreenOnWhenInForeground() {
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON.let { flags ->
-            if (ViewUtils.isKeepScreenOnWhenInForegroundEnabled) {
-                window.addFlags(flags)
-            } else {
-                window.clearFlags(flags)
-            }
-        }
-    }
-
-    private fun configDocumentationLauncherIcon() {
-        DocumentationActivity::class.java.let { clazz ->
-            if (Pref.isDocumentationLauncherIconShouldShow) {
-                showLauncherIcon(this, clazz)
-            } else {
-                hideLauncherIcon(this, clazz)
-            }
-        }
+        ViewUtils.configKeepScreenOnWhenInForeground(this)
     }
 
     companion object {
 
         private val TAG = MainActivity::class.java.simpleName
 
-        private var sShouldRecreateMainActivity = false
-
-        fun setShouldRecreateMainActivity(b: Boolean) {
-            sShouldRecreateMainActivity = b
-        }
+        var shouldRecreateMainActivity = false
 
         @JvmStatic
-        fun launch(context: Context) {
-            context.startActivity(getIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
+        fun launch(context: Context) = context.startActivity(getIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
         @JvmStatic
         fun getIntent(context: Context?) = Intent(context, MainActivity::class.java)

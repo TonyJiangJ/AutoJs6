@@ -5,16 +5,12 @@
 let { autojs, shell, files, util } = global;
 
 /**
- * @param {org.autojs.autojs.runtime.ScriptRuntime} scriptRuntime
+ * @param {ScriptRuntime} scriptRuntime
  * @param {org.mozilla.javascript.Scriptable | global} scope
  * @return {Internal.App}
  */
 module.exports = function (scriptRuntime, scope) {
-    const File = java.io.File;
-    const Uri = android.net.Uri;
     const JavaInteger = java.lang.Integer;
-    const FileProvider = androidx.core.content.FileProvider;
-    const AppUtils = org.autojs.autojs.runtime.api.AppUtils;
 
     /**
      * @type {org.autojs.autojs.runtime.api.AppUtils}
@@ -30,7 +26,7 @@ module.exports = function (scriptRuntime, scope) {
              * @extends Internal.App
              */
             const App = function () {
-                // Empty interface body.
+                /* Empty body. */
             };
 
             App.prototype = {

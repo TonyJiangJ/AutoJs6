@@ -1,63 +1,16 @@
+// noinspection JSUnusedLocalSymbols,UnnecessaryLocalVariableJS
+
 /**
  * @param {org.autojs.autojs.runtime.ScriptRuntime} scriptRuntime
  * @param {org.mozilla.javascript.Scriptable | global} scope
  * @return {Internal.Toast}
  */
 module.exports = function (scriptRuntime, scope) {
+
+    const ScriptToast = org.autojs.autojs.runtime.api.ScriptToast;
+
     let _ = {
         uiHandler: runtime.getUiHandler(),
-        toasts: {
-            /**
-             * @type {Set<android.widget.Toast>}
-             */
-            pool: new Set(),
-            lock: new ReentrantLock(),
-            add(t) {
-                if (t instanceof Toast) {
-                    this.lock.lock();
-                    this.pool.add(t);
-                    this.addCallback(t);
-                    this.lock.unlock();
-                }
-            },
-            /**
-             * @param {android.widget.Toast} t
-             */
-            addCallback(t) {
-                _.uiHandler.postDelayed(new java.lang.Runnable({
-                    run: () => _.toasts.remove(t),
-                }), this.getDuration(t) + 1e3 /* As toast may show with some delay. */);
-            },
-            remove(t) {
-                if (this.pool.has(t)) {
-                    this.lock.lock();
-                    this.pool.delete(t);
-                    this.lock.unlock();
-                }
-            },
-            dismissAll() {
-                if (this.pool.size > 0) {
-                    this.lock.lock();
-                    this.pool.forEach((t) => t.cancel());
-                    this.pool.clear();
-                    this.lock.unlock();
-                }
-            },
-            getDuration(t) {
-                let du = {
-                    SHORT_DELAY: 2e3,
-                    LONG_DELAY: 3.5e3,
-                };
-                switch (t.getDuration()) {
-                    case Toast.LENGTH_SHORT:
-                        return du.SHORT_DELAY;
-                    case Toast.LENGTH_LONG:
-                        return du.LONG_DELAY;
-                    default:
-                        return Math.max.apply(null, Object.values(du));
-                }
-            },
-        },
         ToastCtor: (/* @IIFE */ () => {
             /**
              * @implements Internal.Toast
@@ -72,7 +25,7 @@ module.exports = function (scriptRuntime, scope) {
                 /** @global */
                 const toast = function (msg, isLong, isForcible) {
                     let $ = {
-                        rex: {
+                        badge: {
                             long: /^l(ong)?$/i,
                             short: /^s(hort)?$/i,
                             forcible: /^f(orcible)?$/i,
@@ -83,56 +36,61 @@ module.exports = function (scriptRuntime, scope) {
                         },
                         init() {
                             this.message = isNullish(msg) ? '' : String(msg);
-                            this.isForcible = this.parseIsForcible(isForcible);
                             this.isLong = this.parseIsLong(isLong);
+                            this.isForcible = this.parseIsForcible(isForcible);
                         },
-                        parseIsLong(isLong) {
-                            if (typeof isLong === 'boolean') {
-                                return isLong;
+                        parseIsLong(o) {
+                            let def = typeof this.isLong === 'boolean' ? this.isLong : false;
+                            if (typeof o === 'boolean') {
+                                return o;
                             }
-                            if (typeof isLong === 'number') {
-                                return Boolean(isLong);
+                            if (typeof o === 'number') {
+                                return Boolean(o);
                             }
-                            if (typeof isLong === 'string') {
-                                if (this.rex.long.test(isLong)) {
+                            if (typeof o === 'string') {
+                                if (this.badge.long.test(o)) {
                                     return true;
                                 }
-                                if (this.rex.short.test(isLong)) {
+                                if (this.badge.short.test(o)) {
                                     return false;
                                 }
-                                if (this.rex.forcible.test(isLong)) {
+                                if (this.badge.forcible.test(o)) {
                                     this.isForcible = true;
-                                    return false;
+                                    return def;
                                 }
-                                throw Error(`Invalid param: {name: isLong, value: ${isLong}, type: ${species(isLong)}.`);
+                                throw Error(`Invalid param: {name: isLong, value: ${o}, type: ${species(o)}.`);
                             }
-                            return false;
+                            return def;
                         },
-                        parseIsForcible(isForcible) {
-                            if (typeof isForcible === 'boolean') {
-                                return isForcible;
+                        parseIsForcible(o) {
+                            let def = typeof this.isForcible === 'boolean' ? this.isForcible : false;
+                            if (typeof o === 'boolean') {
+                                return o;
                             }
-                            if (typeof isForcible === 'number') {
-                                return Boolean(isForcible);
+                            if (typeof o === 'number') {
+                                return Boolean(o);
                             }
-                            if (typeof isForcible === 'string') {
-                                if (this.rex.forcible.test(isForcible)) {
+                            if (typeof o === 'string') {
+                                if (this.badge.forcible.test(o)) {
                                     return true;
                                 }
-                                throw Error(`Invalid param: {name: isForcible, value: ${isForcible}, type: ${species(isForcible)}.`);
+                                if (this.badge.long.test(o)) {
+                                    this.isLong = true;
+                                    return def;
+                                }
+                                if (this.badge.short.test(o)) {
+                                    this.isLong = false;
+                                    return def;
+                                }
+                                throw Error(`Invalid param: {name: isForcible, value: ${o}, type: ${species(o)}.`);
                             }
-                            return false;
+                            return def;
                         },
                         show() {
-                            _.uiHandler.post(() => {
-                                if ($.isForcible) {
-                                    _.toasts.dismissAll();
-                                }
-                                let len = $.isLong ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-                                let o = Toast.makeText(_.uiHandler.getContext(), $.message, len);
-                                _.toasts.add(o);
-                                o.show();
-                            });
+                            if ($.isForcible) {
+                                ToastCtor.prototype.dismissAll();
+                            }
+                            scriptRuntime.uiHandler.toast($.message, $.isLong);
                         },
                     };
 
@@ -145,9 +103,7 @@ module.exports = function (scriptRuntime, scope) {
             ToastCtor.prototype = {
                 constructor: ToastCtor,
                 dismissAll() {
-                    _.uiHandler.post(() => {
-                        _.toasts.dismissAll();
-                    });
+                    runtime.uiHandler.dismissAllToasts();
                 },
             };
 

@@ -119,11 +119,11 @@ class WorkingDirectoryPreference : MaterialPreference {
                                         mContentView.setText(text)
                                     }
                                 }
-                                .negativeText(R.string.dialog_button_back)
+                                .negativeText(R.string.dialog_button_cancel)
                                 .show()
                         }
                     }
-                    .negativeText(R.string.dialog_button_back)
+                    .negativeText(R.string.dialog_button_cancel)
                     .negativeColorRes(R.color.dialog_button_default)
                     .onNegative { dHistories, _ -> dHistories.dismiss() }
                     .autoDismiss(false)
@@ -141,7 +141,7 @@ class WorkingDirectoryPreference : MaterialPreference {
                         transfer(mPrefFullPath, inputPath)
                     }
                     WorkingDirectoryUtils.path = inputPath
-                    MainActivity.setShouldRecreateMainActivity(true)
+                    MainActivity.shouldRecreateMainActivity = true
                 }
                 dialog.dismiss()
                 onFinish()

@@ -9,7 +9,7 @@ import android.provider.Settings.Secure
 import android.text.TextUtils
 import android.util.Log
 import org.autojs.autojs.pref.Pref
-import org.autojs.autojs.runtime.api.ProcessShell.execCommand
+import org.autojs.autojs.runtime.api.ProcessShell
 import org.autojs.autojs.util.RootUtils
 import org.autojs.autojs.util.SettingsUtils
 import org.autojs.autojs.util.ViewUtils
@@ -97,13 +97,15 @@ class AccessibilityTool(val context: Context) {
         private fun enableWithRoot(timeout: Long? = null): Boolean = when (timeout != null) {
             true -> enableWithRoot() && AccessibilityService.waitForEnabled(timeout.toLong())
             else -> try {
+                disableWithRoot()
+
                 val services = getEnabledWithRoot(true)
 
                 val cmdServices = "settings put secure enabled_accessibility_services $services"
-                val resultServices = execCommand(cmdServices, true)
+                val resultServices = ProcessShell.execCommand(cmdServices, true)
 
                 val cmdState = "settings put secure accessibility_enabled 1"
-                val resultState = execCommand(cmdState, true)
+                val resultState = ProcessShell.execCommand(cmdState, true)
 
                 TextUtils.isEmpty(resultServices.error) && TextUtils.isEmpty(resultState.error)
             } catch (e: Exception) {
@@ -116,8 +118,12 @@ class AccessibilityTool(val context: Context) {
         private fun enableWithSecure(timeout: Long? = null): Boolean = when (timeout != null) {
             true -> enableWithSecure() && AccessibilityService.waitForEnabled(timeout)
             else -> try {
-                Secure.putString(context.contentResolver, Secure.ENABLED_ACCESSIBILITY_SERVICES, getEnabledWithSecure(true))
+                disableWithSecure()
+
+                val enabledWithSecure = getEnabledWithSecure(true)
+                Secure.putString(context.contentResolver, Secure.ENABLED_ACCESSIBILITY_SERVICES, enabledWithSecure)
                 Secure.putInt(context.contentResolver, Secure.ACCESSIBILITY_ENABLED, 1)
+
                 isEnabled()
             } catch (e: Exception) {
                 false
@@ -130,10 +136,10 @@ class AccessibilityTool(val context: Context) {
             val services = getEnabledWithRoot(false)
 
             val cmdServices = "settings put secure enabled_accessibility_services $services"
-            val resultServices = execCommand(cmdServices, true)
+            val resultServices = ProcessShell.execCommand(cmdServices, true)
 
             val cmdState = "settings put secure accessibility_enabled 0"
-            val resultState = execCommand(cmdState, true)
+            val resultState = ProcessShell.execCommand(cmdState, true)
 
             TextUtils.isEmpty(resultServices.error) && TextUtils.isEmpty(resultState.error)
         } catch (e: Exception) {
@@ -153,7 +159,7 @@ class AccessibilityTool(val context: Context) {
             false -> detachAutoJs(getEnabledWithRoot())
             else -> {
                 val cmd = "settings get secure enabled_accessibility_services"
-                execCommand(cmd, true).result.takeUnless { it == "null" }?.replace("\n", "") ?: ""
+                ProcessShell.execCommand(cmd, true).result.takeUnless { it == "null" }?.replace("\n", "") ?: ""
             }
         }
 

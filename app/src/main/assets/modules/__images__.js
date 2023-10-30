@@ -5,7 +5,7 @@
 let { files, util, ui, threads } = global;
 
 /**
- * @param {org.autojs.autojs.runtime.ScriptRuntime} scriptRuntime
+ * @param {ScriptRuntime} scriptRuntime
  * @param {org.mozilla.javascript.Scriptable | global} scope
  * @return {Internal.Images}
  */
@@ -42,13 +42,16 @@ module.exports = function (scriptRuntime, scope) {
              */
             const Images = function () {
                 return Object.assign(function () {
-                    // Empty interface body.
+                    /* Empty body. */
                 }, Images.prototype);
             };
 
             Images.prototype = {
                 constructor: Images,
                 captureScreen(path) {
+                    if (rtImages.getScreenCapturer() === null) {
+                        this.requestScreenCapture();
+                    }
                     return path === undefined
                         ? rtImages.captureScreen()
                         : rtImages.captureScreen(path);
@@ -577,19 +580,23 @@ module.exports = function (scriptRuntime, scope) {
             };
 
             /**
+             * @class
              * @extends Images.MatchingResult
+             * @param {Images.TemplateMatch[] | java.lang.Iterable<Images.TemplateMatch>} list
              */
             const MatchingResult = function (list) {
-                Object.defineProperties(this, {
-                    matches: {
-                        value: Array.isArray(list) ? list : scriptRuntime.bridges.getBridges().toArray(list),
-                        enumerable: true,
-                    },
-                    points: {
-                        get() {
-                            return this.matches.map(m => m.point);
-                        },
-                        enumerable: false,
+                Object.assign(this, {
+                    matches: (() => {
+                        if (Array.isArray(list)) {
+                            return list;
+                        }
+                        // noinspection UnnecessaryLocalVariableJS
+                        /** @type Images.TemplateMatch[] */
+                        let results = scriptRuntime.bridges.getBridges().toArray(list);
+                        return results;
+                    })(),
+                    get points() {
+                        return this.matches.map(m => m.point);
                     },
                 });
             };
@@ -606,6 +613,9 @@ module.exports = function (scriptRuntime, scope) {
                     if (!this.matches.length) {
                         return null;
                     }
+                    /**
+                     * @type Images.TemplateMatch
+                     */
                     let target = this.matches[0];
                     this.matches.forEach(m => target = compareFn(target, m) > 0 ? m : target);
                     return target;

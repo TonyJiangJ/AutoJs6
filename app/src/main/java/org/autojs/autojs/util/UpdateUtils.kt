@@ -127,12 +127,12 @@ object UpdateUtils {
                     .onNeutral { dVersionInfo, _ ->
                         showRemoveIgnoredVersionPrompt(context, dialog, dVersionInfo, text)
                     }
-                    .positiveText(R.string.dialog_button_back)
+                    .positiveText(R.string.dialog_button_cancel)
                     .onPositive { dVersionInfo, _ -> dVersionInfo.dismiss() }
                     .autoDismiss(false)
                     .show()
             }
-            .positiveText(R.string.dialog_button_back)
+            .positiveText(R.string.dialog_button_cancel)
             .onPositive { dialog, _ -> dialog.dismiss() }
             .autoDismiss(false)
             .build()
@@ -174,7 +174,8 @@ object UpdateUtils {
     }
 
     @JvmStatic
-    fun autoCheckForUpdatesIfNeededWithSnackbar(activity: AppCompatActivity, snackbarViewIdRes: Int) {
+    @JvmOverloads
+    fun autoCheckForUpdatesIfNeededWithSnackbar(activity: AppCompatActivity, snackbarViewIdRes: Int = android.R.id.content) {
         if (isAutoCheckForUpdatesEnabled) {
             val checker = IntervalChecker()
             if (checker.isBeyondNoNewer && checker.isBeyondPostponed && checker.isBeyondAutoChecked) {

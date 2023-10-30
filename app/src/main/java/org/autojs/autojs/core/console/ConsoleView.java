@@ -2,6 +2,8 @@ package org.autojs.autojs.core.console;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.autojs.autojs.tool.MapBuilder;
 import org.autojs.autojs.ui.enhancedfloaty.ResizableExpandableFloatyWindow;
+import org.autojs.autojs.ui.log.LogActivity;
 import org.autojs.autojs.util.DisplayUtils;
 import org.autojs.autojs6.R;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +43,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
     private final static int sRefreshInterval = 100;
     private final Map<Integer, Integer> mColors = new MapBuilder<Integer, Integer>().build();
     private ConsoleImpl mConsole;
+    private LogActivity mLogActivity;
     private RecyclerView mLogListRecyclerView;
     private EditText mEditText;
     private ResizableExpandableFloatyWindow mWindow;
@@ -55,27 +59,51 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
 
     public ConsoleView(Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public ConsoleView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public ConsoleView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void init() {
+    private void init(@Nullable AttributeSet attrs) {
         inflate(getContext(), R.layout.console_view, this);
 
-        for (Map.Entry<Integer, Integer> map : getLogLevelMap().entrySet()) {
+        Map<Integer, Integer> logLevelColorResIdMap = getLogLevelMap();
+        Map<Integer, Integer> logLevelColorIntMap = getLogLevelMap();
+
+        if (attrs != null) {
+            TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.ConsoleView);
+
+            logLevelColorIntMap.put(Log.VERBOSE, ta.getColor(R.styleable.ConsoleView_color_verbose, Color.TRANSPARENT));
+            logLevelColorIntMap.put(Log.DEBUG, ta.getColor(R.styleable.ConsoleView_color_debug, Color.TRANSPARENT));
+            logLevelColorIntMap.put(Log.INFO, ta.getColor(R.styleable.ConsoleView_color_info, Color.TRANSPARENT));
+            logLevelColorIntMap.put(Log.WARN, ta.getColor(R.styleable.ConsoleView_color_warn, Color.TRANSPARENT));
+            logLevelColorIntMap.put(Log.ERROR, ta.getColor(R.styleable.ConsoleView_color_error, Color.TRANSPARENT));
+            logLevelColorIntMap.put(Log.ASSERT, ta.getColor(R.styleable.ConsoleView_color_assert, Color.TRANSPARENT));
+
+            ta.recycle();
+        }
+
+        for (Map.Entry<Integer, Integer> map : logLevelColorResIdMap.entrySet()) {
             int logLevel = map.getKey();
             int colorResKey = map.getValue();
             mColors.put(logLevel, getContext().getColor(colorResKey));
+        }
+
+        for (Map.Entry<Integer, Integer> map : logLevelColorIntMap.entrySet()) {
+            int logLevel = map.getKey();
+            int colorInt = map.getValue();
+            if (colorInt != Color.TRANSPARENT) {
+                mColors.put(logLevel, colorInt);
+            }
         }
 
         ScaleGestureDetector mScaleGestureDetector = new ScaleGestureDetector(getContext(), getSimpleOnScaleGestureListener());
@@ -164,24 +192,28 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
             adapter.setDebugTextColor(color);
         }
     }
+
     public void setInfoTextColor(int color) {
         Adapter adapter = (Adapter) mLogListRecyclerView.getAdapter();
         if (adapter != null) {
             adapter.setInfoTextColor(color);
         }
     }
+
     public void setWarnTextColor(int color) {
         Adapter adapter = (Adapter) mLogListRecyclerView.getAdapter();
         if (adapter != null) {
             adapter.setWarnTextColor(color);
         }
     }
+
     public void setErrorTextColor(int color) {
         Adapter adapter = (Adapter) mLogListRecyclerView.getAdapter();
         if (adapter != null) {
             adapter.setErrorTextColor(color);
         }
     }
+
     public void setAssertTextColor(int color) {
         Adapter adapter = (Adapter) mLogListRecyclerView.getAdapter();
         if (adapter != null) {
@@ -238,6 +270,16 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
     public void setConsole(ConsoleImpl console) {
         mConsole = console;
         mConsole.setConsoleView(this);
+    }
+
+    public void setLogActivity(LogActivity activity) {
+        mLogActivity = activity;
+    }
+
+    public void export(String fileName) {
+        if (mLogActivity != null) {
+            mLogActivity.export(fileName);
+        }
     }
 
     @Override
@@ -307,7 +349,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
     public void showEditText() {
         post(() -> {
             mWindow.requestWindowFocus();
-            //mInputContainer.setVisibility(VISIBLE);
+            // mInputContainer.setVisibility(VISIBLE);
             mEditText.requestFocus();
         });
     }
@@ -347,7 +389,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
             if (textSize > 0) {
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
             } else {
-                textSize = DisplayUtils.pxToSp(getContext(), textView.getTextSize());
+                textSize = DisplayUtils.pxToSp(textView.getTextSize());
             }
             textView.setClickable(false);
             textView.setLongClickable(false);

@@ -1,5 +1,6 @@
 package org.autojs.autojs
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -30,15 +31,18 @@ import org.autojs.autojs.ui.main.MainActivity
 import org.autojs.autojs.ui.project.BuildActivity
 import org.autojs.autojs.ui.settings.AboutActivity
 import org.autojs.autojs.ui.settings.PreferencesActivity
+import org.autojs.autojs6.BuildConfig
 import org.autojs.autojs6.R
 import java.util.concurrent.Executors
+import org.autojs.autojs.inrt.autojs.AutoJs as AutoJsInrt
 
 /**
  * Created by Stardust on 2017/4/2.
  * Modified by SuperMonster003 as of Dec 1, 2021.
  * Transformed by SuperMonster003 on Oct 10, 2022.
+ * Modified by LZX284 (https://github.com/LZX284) as of Sep 30, 2023.
  */
-class AutoJs private constructor(private val appContext: Application) : AbstractAutoJs(appContext) {
+open class AutoJs(private val appContext: Application) : AbstractAutoJs(appContext) {
 
     // @Thank to Zen2H
     private val printExecutor = Executors.newSingleThreadExecutor()
@@ -57,12 +61,12 @@ class AutoJs private constructor(private val appContext: Application) : Abstract
                     when {
                         action.equals(LayoutBoundsFloatyWindow::class.java.name, true) -> {
                             capture(object : LayoutInspectFloatyWindow {
-                                override fun create(nodeInfo: NodeInfo?) = LayoutBoundsFloatyWindow(nodeInfo, context)
+                                override fun create(nodeInfo: NodeInfo?) = LayoutBoundsFloatyWindow(nodeInfo, context, true)
                             })
                         }
                         action.equals(LayoutHierarchyFloatyWindow::class.java.name, true) -> {
                             capture(object : LayoutInspectFloatyWindow {
-                                override fun create(nodeInfo: NodeInfo?) = LayoutHierarchyFloatyWindow(nodeInfo, context)
+                                override fun create(nodeInfo: NodeInfo?) = LayoutHierarchyFloatyWindow(nodeInfo, context, true)
                             })
                         }
                     }
@@ -167,23 +171,30 @@ class AutoJs private constructor(private val appContext: Application) : Abstract
         /* Broadcasts. */
 
         putProperty(BroadcastShortForm.INSPECT_LAYOUT_BOUNDS.fullName, LayoutBoundsFloatyWindow::class.java.name)
+        putProperty(BroadcastShortForm.LAYOUT_BOUNDS.fullName, LayoutBoundsFloatyWindow::class.java.name)
         putProperty(BroadcastShortForm.BOUNDS.fullName, LayoutBoundsFloatyWindow::class.java.name)
 
         putProperty(BroadcastShortForm.INSPECT_LAYOUT_HIERARCHY.fullName, LayoutHierarchyFloatyWindow::class.java.name)
+        putProperty(BroadcastShortForm.LAYOUT_HIERARCHY.fullName, LayoutHierarchyFloatyWindow::class.java.name)
         putProperty(BroadcastShortForm.HIERARCHY.fullName, LayoutHierarchyFloatyWindow::class.java.name)
     }
 
     companion object {
         private var isInitialized = false
 
+        @SuppressLint("StaticFieldLeak")
         @JvmStatic
         lateinit var instance: AutoJs
             private set
 
         @Synchronized
+        @JvmStatic
         fun initInstance(application: Application) {
             if (!isInitialized) {
-                instance = AutoJs(application)
+                instance = when (BuildConfig.isInrt) {
+                    true -> AutoJsInrt(application)
+                    else -> AutoJs(application)
+                }
                 isInitialized = true
             }
         }

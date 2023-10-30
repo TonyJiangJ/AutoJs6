@@ -1,14 +1,15 @@
+// noinspection JSUnusedLocalSymbols
+
 /* Overwritten protection. */
 
 let { util } = global;
 
 /**
- * @param {org.autojs.autojs.runtime.ScriptRuntime} scriptRuntime
+ * @param {ScriptRuntime} scriptRuntime
  * @param {org.mozilla.javascript.Scriptable | global} scope
  * @return {Internal.Device}
  */
 module.exports = function (scriptRuntime, scope) {
-    const ScreenMetrics = org.autojs.autojs.runtime.api.ScreenMetrics;
     const NetworkUtils = org.autojs.autojs.util.NetworkUtils;
     const DeviceUtils = org.autojs.autojs.util.DeviceUtils;
 
@@ -20,7 +21,7 @@ module.exports = function (scriptRuntime, scope) {
              * @extends Internal.Device
              */
             const Device = function () {
-                // Empty interface body.
+                /* Empty body. */
             };
 
             Device.prototype = {
@@ -32,7 +33,10 @@ module.exports = function (scriptRuntime, scope) {
                     return ScreenMetrics.getDeviceScreenHeight();
                 },
                 get rotation() {
-                    return ScreenMetrics.getRotation();
+                    return rtDevice.getRotation();
+                },
+                get orientation() {
+                    return rtDevice.getOrientation();
                 },
                 get density() {
                     return ScreenMetrics.getDeviceScreenDensity();
@@ -62,6 +66,12 @@ module.exports = function (scriptRuntime, scope) {
                 },
                 isScreenOff() {
                     return !rtDevice.isScreenOn();
+                },
+                isScreenPortrait() {
+                    return rtDevice.isScreenPortrait();
+                },
+                isScreenLandscape() {
+                    return rtDevice.isScreenLandscape();
                 },
                 getIpAddress(useIPv4) {
                     return useIPv4 === undefined

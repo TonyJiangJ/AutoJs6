@@ -34,18 +34,19 @@ import android.accessibilityservice.AccessibilityService as AndroidAccessibility
  */
 class SimpleActionAutomator(private val accessibilityBridge: AccessibilityBridge, private val scriptRuntime: ScriptRuntime) {
 
-    private val globalActionAutomatorRaw by lazy {
-        GlobalActionAutomator(Handler(scriptRuntime.loopers.servantLooper)) {
+    private val globalActionAutomatorRaw
+        get() = GlobalActionAutomator(Handler(scriptRuntime.loopers.servantLooper)) {
             ensureService()
             accessibilityBridge.service!!
         }
+
+    private val globalActionAutomator by lazy {
+        globalActionAutomatorRaw
     }
 
-    private val globalActionAutomator
-        get() = globalActionAutomatorRaw
-
-    private val globalActionAutomatorForGesture
-        get() = globalActionAutomatorRaw.apply { setScreenMetrics(mScreenMetrics) }
+    private val globalActionAutomatorForGesture by lazy {
+        globalActionAutomatorRaw.apply { setScreenMetrics(mScreenMetrics) }
+    }
 
     private val isRunningPackageSelf
         get() = DeveloperUtils.isSelfPackage(accessibilityBridge.infoProvider.latestPackage)
@@ -171,7 +172,7 @@ class SimpleActionAutomator(private val accessibilityBridge: AccessibilityBridge
     fun longClick(x: Int, y: Int) = globalActionAutomatorForGesture.longClick(x, y)
 
     @ScriptInterface
-    fun swipe(x1: Int, y1: Int, x2: Int, y2: Int, delay: Int) = globalActionAutomatorForGesture.swipe(x1, y1, x2, y2, delay.toLong())
+    fun swipe(x1: Int, y1: Int, x2: Int, y2: Int, duration: Int) = globalActionAutomatorForGesture.swipe(x1, y1, x2, y2, duration.toLong())
 
     @ScriptInterface
     fun paste(target: ActionTarget) = performAction(target.createAction(AccessibilityNodeInfo.ACTION_PASTE))

@@ -26,7 +26,6 @@
     <string name="description_change_working_dir_preference">Changer le chemin du répertoire contenant les scripts</string>.
     <string name="description_check_for_updates_preference">AutoJs6 obtient et télécharge les mises à jour depuis GitHub.\n\nNote: La mise à jour ne fournit pas encore de support multilingue.</string>
     <string name="description_compatibility_with_classes_for_ver_4_x">Assure un certain degré de compatibilité des noms de classe Java pour les versions 4.x grâce au remappage des noms de classe.\nSi cette option est activée, il y aura un délai de démarrage plus ou moins long (de quelques dizaines à quelques centaines de millisecondes) à chaque fois que le script sera lancé.\nIl est recommandé de laisser l\'option désactivée à tout moment si elle n\'est pas spécifiquement requise.</string>
-    <string name="description_documentation_launcher_icon_preference">Une icône de lancement de la documentation facilite l\'accès aux documents et peut être commutée comme une application autonome.</string>
     <string name="description_documentation_source_preference">Documentation locale: Utilisation des fichiers intégrés d\'AutoJs6 comme sources de documentation, aucune connexion réseau n\'est nécessaire. Le contenu change au fur et à mesure que AutoJs6 est mis à jour.\nDocumentation en ligne: Utilisation des pages GitHub comme sources de documentation, nécessitant une connexion réseau. Le contenu est toujours à jour.\n\nRemarque: pour optimiser l\'expérience de lecture des documents en ligne, il est recommandé d\'utiliser un dispositif d\'affichage grand écran tel qu\'un moniteur de bureau.\nRemarque: à partir de la version 6.2.0, la documentation est encore dans les phases préliminaires de développement, et la plupart du contenu n\'a pas encore été écrit ou mis à jour.</string>
     <string name="description_documentation_source_preference_more">Les conditions suivantes doivent être remplies pour la prise en charge du thème sombre sur les pages de la documentation :\n1. Le mode nuit d\'AutoJs6 est activé\n2. WebView du système Android (ou des navigateurs comme Google Chrome) :\n- Android API Level 29 (Android 10) [Q] et supérieur: version >= 76\n- Android API Niveau 28 (Android 9) [P] et inférieur: version >= 105</string>
     <string name="description_extending_js_build_in_objects">L\'extension des objets JavaScript intégrés peut augmenter la flexibilité du code et permettre des fonctionnalités plus riches, mais elle peut provoquer des conflits et même des pannes.\nTous les scripts ont des extensions intégrées activées par défaut lorsque l\'option est activée.\nLes extensions intégrées sont souvent peu sûres et ne sont pas recommandées, sauf si les principes et les risques des extensions intégrées sont clairement compris.\nLorsque l\'option est désactivée, les extensions intégrées peuvent toujours être activées via l\'objet global plugins, comme décrit dans la documentation du projet.</string>
@@ -40,6 +39,7 @@
     <string name="description_stable_mode">Le mode stable le rend plus stable lors de l\'obtention des limites de mise en page, mais certains résultats peuvent être ignorés.\nA11y service\'s restart required.</string>
     <string name="description_theme_color_preference">La couleur du thème est appliquée aux widgets, y compris, mais sans s\'y limiter, aux widgets suivants :\nBarre d\'état\nBarre d\'applications\nIcône de fichier\nIcône d\'élément de tâche\nFab\nTitre de la catégorie Paramètres\nBouton de commutation\n\nRemarque: Depuis la version 6.2.0 d\'AutoJs6, il n\'y a pas encore de différence entre la couleur primaire, la couleur primaire foncée et la couleur d\'accentuation.</string>
     <string name="dialog_button_back">@string/text_back</string>
+    <string name="dialog_button_continue">@string/text_continue</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_cancel_download">Annulation</string>
     <string name="dialog_button_confirm">OK</string>
@@ -58,12 +58,11 @@
     <string name="dialog_button_system_settings_simplified">Système</string>
     <string name="dialog_button_update_now">Mise à jour</string>
     <string name="dialog_button_use_default">Par défaut</string>
-    <string name="docs_app_name">AutoJs6 Docs</string>
+    <string name="text_app_shortcut_docs_long_label">AutoJs6 Docs</string>
+    <string name="text_app_shortcut_docs_short_label">Docs</string>
     <string name="edit_and_run_handle_intent_error">Can\'t process file</string>
     <string name="edit_exit_without_save_warn">Le contenu n\'a pas été enregistré, êtes-vous sûr de vouloir quitter?</string>
     <string name="entry_app_language_auto">Suivre le système</string>
-    <string name="entry_documentation_launcher_icon_hide">Masquer l\'icône du lanceur</string>
-    <string name="entry_documentation_launcher_icon_show">Afficher l\'icône dans le lanceur</string>
     <string name="entry_documentation_source_local">Documents locaux</string>
     <string name="entry_documentation_source_online">Documents en ligne</string>
     <string name="entry_editor_pinch_to_zoom_change_text_size">Taille du texte</string>
@@ -83,6 +82,7 @@
     <string name="entry_root_record_out_file_type_binary">Type binaire (non éditable)</string>
     <string name="entry_root_record_out_file_type_js">Type JavaScript (modifiable)</string>
     <string name="error_a_runtime_has_been_set">Un runtime a été défini</string>
+    <string name="error_abandoned_method">La méthode %s a été abandonnée et ne doit pas être utilisée</string>
     <string name="error_app_not_installed">L\'application n\'est pas installée: \"%s\"</string>
     <string name="error_both_bitmap_and_mat_are_null">Le bitmap et le mat sont tous deux nuls</string>
     <string name="error_cannot_be_null">%s can\'t be null</string>
@@ -94,11 +94,13 @@
     <string name="error_change_password_error_length">Utiliser plus de caractères pour le mot de passe</string>.
     <string name="error_change_password_error_match">Ces mots de passe ne correspondent pas</string>
     <string name="error_check_for_update">Fail to check for updates</string>
+    <string name="error_colon_must_follow_a_valid_ip_address">Les deux points doivent suivre une adresse IP valide</string>
     <string name="error_compass_cannot_be_null">Compass ne peut pas être null</string>
     <string name="error_connect_to_remote">Impossible de se connecter au serveur distant: %s</string>
     <string name="error_continuation_resume_called_without_suspend">La méthode resume() doit être appelée après suspend()</string>.
     <string name="error_continuation_suspend_called_more_than_once">La méthode suspend() ne devrait être appelée qu\'une seule fois</string>.
     <string name="error_corresponding_github_release_may_not_published">La version GitHub correspondante n\'a peut-être pas encore été publiée</string>.
+    <string name="error_dot_decimal_notation_num_over_255">Nombre de points décimaux supérieur à 255</string>
     <string name="error_download_interrupted">Téléchargement interrompu</string>
     <string name="error_email_taken">L\'e-mail est pris</string>
     <string name="error_empty_broadcast_selection">Il faut sélectionner au moins une diffusion</string>.
@@ -118,16 +120,18 @@
     <string name="error_image_has_been_recycled">L\'image a été recyclée</string>
     <string name="error_invalid_compass">Compas non valide: %s</string>
     <string name="error_invalid_github_repo">Invalide le dépôt GitHub: %s</string>
+    <string name="error_invalid_ip_address">Adresse IP invalide</string>
     <string name="error_invalid_login_credentials">Crédentiels de connexion invalides</string>
     <string name="error_invalid_rest_compass">Invalid rest compass: %s</string>
     <string name="error_invalid_selector_map_element" formatted="false">Elément de carte de sélecteur non valide: { %s: %s (%s) }</string>
+    <string name="error_ip_address_should_not_be_empty">L\'adresse IP ne peut pas être vide</string>
     <string name="error_max_listeners_exceeded">Max listeners exceeded: %d</string>
     <string name="error_may_not_have_root_access_to_run_auto_file">AutoJs6 peut ne pas avoir l\'accès root pour exécuter le fichier \"auto\"</string>.
     <string name="error_method_called_with_null_argument" formatted="false">%s() called with null argument: %s</string>
     <string name="error_no_accessibility_permission">Le service d\'accessibilité est désactivé et le script s\'est arrêté</string>.
     <string name="error_no_accessibility_permission_to_capture">Le service d\'accessibilité n\'est pas activé</string>.
     <string name="error_no_accessibility_service">No accessibility service</string>
-    <string name="error_no_draw_overlays_permission">Aucune permission \"display over other apps\"</string>
+    <string name="error_no_display_over_other_apps_permission">Aucune permission \"display over other apps\"</string>
     <string name="error_no_post_notifications_permission">Pas d\'autorisation pour les \"notifications d\'envoi\"</string>
     <string name="error_no_read_phone_state_permission">Aucune autorisation de \"lire l\'état du téléphone\"</string>
     <string name="error_no_screen_capture_permission">Aucune autorisation de capture d\'écran</string>
@@ -139,13 +143,17 @@
     <string name="error_parse_github_release_assets">Failed to parse GitHub release assets</string>
     <string name="error_parse_version_info">Fail to parse version information</string>
     <string name="error_pattern_syntax">Syntaxe de motif invalide</string>
+    <string name="error_port_num_over_65535">Numéro de port supérieur à 65535</string>
     <string name="error_put_value_into_json">Can\'t put value %s into JSON</string>
     <string name="error_regex_find_prev">Can\'t find previous with regex</string>
+    <string name="error_repeated_colon_symbol">Symbole deux-points répété</string>
+    <string name="error_repeated_dot_symbol">Symbole point répété</string>
     <string name="error_script_is_on_exiting">Le script est en train de sortir</string>
     <string name="error_selector_method_without_calling">La méthode du sélecteur doit être appelée plutôt que passée en paramètre: %s</string>.
     <string name="error_selector_result_type_with_compass">Can\'t use a compass when result type is selector</string>
     <string name="error_set_both_icon_res_and_icon">Can\'t set both iconRes and icon</string>
     <string name="error_thread_is_not_alive">Thread n\'est pas vivant</string>
+    <string name="error_unacceptable_character">Caractère inacceptable</string>
     <string name="error_unknown">Erreur inconnue</string>
     <string name="error_unknown_algorithm_selector_param">Param inconnu du sélecteur d\'algorithme: %s</string>
     <string name="error_unknown_color_name">Nom de couleur inconnu: %s</string>
@@ -277,19 +285,21 @@
     <string name="text_click_too_frequently">Une opération fréquente</string>
     <string name="text_client_mode">Mode client</string>
     <string name="text_close">Fermeture</string>
+    <string name="text_close_floating_button">Fermer le bouton flottant</string>
     <string name="text_code">Code</string>
     <string name="text_code_beautify">Beautifier le code</string>
     <string name="text_command_already_copied_to_clip">Commande copiée dans le presse-papiers</string>
+    <string name="text_comment">Commentaire</string>
     <string name="text_compatibility">Compatibilité</string>
     <string name="text_compatibility_with_classes_for_ver_4_x">Compatibilité avec les classes Java pour la version 4.x</string>
     <string name="text_config">Configuration</string>
     <string name="text_confirm_to_delete">Vous êtes sûr de vouloir supprimer?</string>
     <string name="text_confirm_to_remove">Etes-vous sûr de supprimer?</string>
     <string name="text_connect_to_pc">Connexion au PC</string>
+    <string name="text_connection_cannot_be_established">La connexion ne peut pas être établie</string>
     <string name="text_console">Console</string>
     <string name="text_continue">Continue</string>
     <string name="text_copy">Copie</string>
-    <string name="text_export">Export</string>
     <string name="text_copy_all">Copier tout</string>
     <string name="text_copy_all_files_to_new_directory">Copier tous les fichiers dans un nouveau répertoire</string>
     <string name="text_copy_command">Copie de cmd</string>
@@ -297,6 +307,7 @@
     <string name="text_copy_line">Copie de la ligne</string>
     <string name="text_copy_to_clip">Copie vers le presse-papiers</string>
     <string name="text_copy_value">Copie de la valeur</string>
+    <string name="text_current_version">Version actuelle</string>
     <string name="text_daily_task">Tâche quotidienne</string>
     <string name="text_date">Date</string>
     <string name="text_day1">Mon</string>
@@ -313,7 +324,7 @@
     <string name="text_debug_step_over">Step over</string>
     <string name="text_delete">Suppression</string>
     <string name="text_delete_line">Supprimer la ligne</string>
-    <string name="text_detail">Détails</string>
+    <string name="text_details">Détails</string>
     <string name="text_developer_details_under_development">Les détails du développeur sont en cours de développement</string>
     <string name="text_developer_options">Les options du développeur</string>
     <string name="text_device_brand">Marque de l\'appareil</string>
@@ -332,7 +343,6 @@
     <string name="text_do_not_ask_again_for_this_version">Ne pas redemander cette version</string>
     <string name="text_do_not_show_again">Ne pas montrer à nouveau</string>
     <string name="text_documentation">Documents</string>
-    <string name="text_documentation_launcher_icon">Icône du lanceur de documentation</string>
     <string name="text_documentation_source">Source de la documentation</string>
     <string name="text_done">Done</string>
     <string name="text_download">Téléchargement</string>
@@ -363,7 +373,7 @@
     <string name="text_execution_finished" formatted="false">[%s] finished in %s seconds.\n</string>
     <string name="text_exit">Sortir</string>
     <string name="text_exit_directly">Exit</string>
-    <string name="text_close_floating_button">Fermer le bouton flottant</string>
+    <string name="text_export">Export</string>
     <string name="text_extending_js_build_in_objects">Extension des objets intégrés de JavaScript</string>
     <string name="text_extensibility">Extensibilité</string>
     <string name="text_failed">Failed</string>
@@ -374,6 +384,7 @@
     <string name="text_failed_to_download">Fail to download</string>
     <string name="text_failed_to_enable_a11y_service_with_root_access">Failed to enable accessibility service with root access</string>
     <string name="text_failed_to_enable_a11y_service_with_secure_settings">Failed to enable accessibility service with secure settings</string>
+    <string name="text_failed_to_format">Échec du formatage</string>
     <string name="text_failed_to_generate">Fail to generate code</string>
     <string name="text_failed_to_grant_access">Failed to grant access</string>
     <string name="text_failed_to_grant_draw_overlays_permission">Fail to grant display over other apps permission</string>
@@ -381,6 +392,7 @@
     <string name="text_failed_to_login">Fail to login</string>
     <string name="text_failed_to_register">Failed to register</string>
     <string name="text_failed_to_report">Failed to submit</string>
+    <string name="text_failed_to_save_remote_project_to_local_storage">Échec de l\'enregistrement du projet distant dans le stockage local</string>
     <string name="text_failed_to_write_file">Fail to write file</string>
     <string name="text_file">Fichier</string>
     <string name="text_file_exists">Fichier déjà existant</string>
@@ -396,6 +408,8 @@
     <string name="text_force_stop">Force stop</string>
     <string name="text_foreground_service">Service d\'avant-plan</string>
     <string name="text_foreground_service_description">Les services d\'avant-plan effectuent des opérations qui sont perceptibles par l\'utilisateur\nLes services d\'avant-plan affichent une notification dans la barre d\'état, de sorte que les utilisateurs sont activement conscients que votre application effectue une tâche en avant-plan et consomme des ressources système.\nLa notification ne peut pas être rejetée à moins que le service ne soit arrêté ou supprimé de l\'avant-plan.\nLa notification peut avoir une faible priorité, voire être désactivée, en appuyant longuement sur la notification.</string>
+    <string name="text_formatting_completed">Formatage terminé</string>
+    <string name="text_function">Fonction</string>
     <string name="text_fx_keyboard">Fx clavier</string>
     <string name="text_generate">Générer</string>
     <string name="text_generate_code">Générer un code</string>
@@ -443,6 +457,8 @@
     <string name="text_layout_inspector_is_dumping" tools:ignore="TypographyEllipsis">Inspecter la mise en page...</string>
     <string name="text_licenses">Licences Open Sources</string>
     <string name="text_log">Journal</string>
+    <string name="text_app_shortcut_log_long_label">AutoJs6 Journal</string>
+    <string name="text_app_shortcut_log_short_label">Journal</string>
     <string name="text_logging_in">Logging in</string>
     <string name="text_login">Login</string>
     <string name="text_login_succeed">Login réussi</string>
@@ -450,10 +466,13 @@
     <string name="text_loop_delay">Délai de boucle (sec)</string>
     <string name="text_loop_interval">Intervalle de boucle (sec)</string>
     <string name="text_loop_times">Temps de boucle</string>
+    <string name="text_lower_than">Inférieure à</string>
     <string name="text_main_file_name">Nom du fichier du script principal</string>
     <string name="text_manage">Gestion</string>
     <string name="text_manage_a11y_service">Gestion du service d\'accessibilité</string>
     <string name="text_manage_ignored_updates">Gérer les mises à jour ignorées</string>
+    <string name="text_min_version">Version minimale</string>
+    <string name="text_min_version_of_vscode_vsc_ext">Version minimale de l\'extension VSCode</string>
     <string name="text_mobile_qq_not_installed">\"Mobile QQ\" non installé</string>
     <string name="text_more">Plus</string>
     <string name="text_more_details">Détails</string>
@@ -478,7 +497,6 @@
     <string name="text_not_granted">Non accordée</string>
     <string name="text_not_showing_main_activity">Not showing main activity</string>
     <string name="text_notification">Notification</string>
-    <string name="text_post_notifications_permission">Notifications postales</string>
     <string name="text_notification_access_permission">Accès à la notification</string>
     <string name="text_notification_service_disabled">Le service de notification ne fonctionne pas</string>
     <string name="text_null">Null</string>
@@ -514,6 +532,7 @@
     <string name="text_please_input_name">Nom de l\'entrée</string>
     <string name="text_pointer_location">L\'emplacement du pointeur (avec la racine)</string>
     <string name="text_pointer_location_toggle_failed_with_hint">Toggle \"pointer location\" failed.\nL\'accès à la racine est nécessaire.</string>
+    <string name="text_post_notifications_permission">Notifications postales</string>
     <string name="text_pre_execute_script">Pré-exécution du script</string>
     <string name="text_preparing" tools:ignore="TypographyEllipsis">Préparation...</string>
     <string name="text_press_again_to_dismiss_dialog">Appuyez à nouveau sur la touche pour rejeter la boîte de dialogue</string>.
@@ -524,8 +543,6 @@
     <string name="text_project_location">Localisation du projet</string>
     <string name="text_project_media_access">Accès aux médias du projet</string>
     <string name="text_project_media_access_description">Avec l\'accès aux médias du projet, l\'avertissement de sécurité pour l\'enregistrement d\'écran ne sera pas demandé.</string>
-    <string name="text_project_save_error">Fail to save project</string>
-    <string name="text_project_save_succeeded">Projet enregistré</string>
     <string name="text_prompt">Prompt</string>
     <string name="text_quit">Quit</string>
     <string name="text_record_finished">Enregistrement terminé</string>
@@ -542,11 +559,14 @@
     <string name="text_registering">Register</string>
     <string name="text_release_notes">Release notes</string>
     <string name="text_remote">à distance</string>
+    <string name="text_remote_file_saved_to_local_storage_successfully">Fichier distant enregistré avec succès dans la mémoire locale</string>
+    <string name="text_remote_project_saved_to_local_storage_successfully">Projet distant sauvegardé avec succès dans le stockage local</string>
     <string name="text_remove_all_breakpoints">Supprimer tous les points d\'arrêt</string>
     <string name="text_rename">Renommer</string>
     <string name="text_replace">Remplacer</string>
     <string name="text_replace_all">Remplacer tout</string>
     <string name="text_replace_simplified">Rempl</string>
+    <string name="text_repo_url_of_vscode_vsc_ext">URL du dépôt de l\'extension VSCode</string>
     <string name="text_report_succeed">Submission réussie</string>
     <string name="text_requires_android_os_version" formatted="false">Requiert Android OS version %s (API %s) mais la version actuelle est %s (API %s)</string>
     <string name="text_reset_password">Réinitialiser le mot de passe</string>
@@ -585,7 +605,6 @@
     <string name="text_save_to">Save to</string>
     <string name="text_script_record">Enregistrement de scripts</string>
     <string name="text_script_running">Script running</string>
-    <string name="text_script_save_succeeded">Script enregistré réussi (un rafraîchissement est nécessaire)</string>
     <string name="text_search">Recherche</string>
     <string name="text_select">Select</string>
     <string name="text_select_by_exists">Si le clip existe (exists)</string>
@@ -603,6 +622,8 @@
     <string name="text_set_as_working_dir">Comme répertoire de travail</string>
     <string name="text_set_breakpoint">Définir un point d\'arrêt</string>
     <string name="text_settings">Réglages</string>
+    <string name="text_app_shortcut_settings_long_label">AutoJs6 Réglages</string>
+    <string name="text_app_shortcut_settings_short_label">Réglages</string>
     <string name="text_should_not_be_empty">Le texte ne peut pas être vide</string>
     <string name="text_show_layout_bounds">Afficher les bords de la disposition</string>
     <string name="text_show_layout_hierarchy">Afficher la hiérarchie de la disposition</string>
@@ -651,6 +672,7 @@
     <string name="text_version_info">Informations de la version</string>
     <string name="text_version_name">Nom de la version</string>
     <string name="text_view_docs">Voir les documents</string>
+    <string name="text_vsc_ext_version_not_meet_requirement">La version de l\'extension VSCode ne répond pas aux exigences</string>
     <string name="text_weekly_task">Tâche hebdomadaire</string>
     <string name="text_weekly_task_should_check_day_of_week">Au moins un jour doit être sélectionné</string>
     <string name="text_working_dir_path">Chemin du répertoire de travail</string>.
@@ -658,34 +680,45 @@
     <string name="text_write_secure_settings_description">Paramètres de sécurité du système, contenant les préférences du système que les applications peuvent lire mais ne sont pas autorisées à écrire.\nIl s\'agit des préférences que l\'utilisateur doit explicitement modifier par le biais de l\'interface utilisateur d\'une application système.\nAvec l\'autorisation de paramètres de sécurité du système, les applications normales peuvent directement modifier les paramètres de sécurité (comme le service d\'accessibilité).</string>
     <string name="text_write_system_settings">Écrire les paramètres système</string>
     <string name="theme_color_default">Default</string>
-    <string name="error_abandoned_method">La méthode %s a été abandonnée et ne doit pas être utilisée</string>
-    <string name="error_invalid_ip_address">Adresse IP invalide</string>
-    <string name="error_ip_address_should_not_be_empty">L\'adresse IP ne peut pas être vide</string>
-    <string name="error_unacceptable_character">Caractère inacceptable</string>
-    <string name="error_port_num_over_65535">Numéro de port supérieur à 65535</string>
-    <string name="error_dot_decimal_notation_num_over_255">Nombre de points décimaux supérieur à 255</string>
-    <string name="error_colon_must_follow_a_valid_ip_address">Les deux points doivent suivre une adresse IP valide</string>
-    <string name="error_repeated_dot_symbol">Symbole point répété</string>
-    <string name="error_repeated_colon_symbol">Symbole deux-points répété</string>
-    <string name="text_vsc_ext_version_not_meet_requirement">La version de l\'extension VSCode ne répond pas aux exigences</string>
-    <string name="text_min_version">Version minimale</string>
-    <string name="text_current_version">Version actuelle</string>
-    <string name="text_lower_than">Inférieure à</string>
-    <string name="text_repo_url_of_vscode_vsc_ext">URL du dépôt de l\'extension VSCode</string>
-    <string name="text_connection_cannot_be_established">La connexion ne peut pas être établie</string>
-    <string name="text_min_version_of_vscode_vsc_ext">Version minimale de l\'extension VSCode</string>
-    <string name="text_function">Fonction</string>
-    <string name="text_formatting_completed">Formatage terminé</string>
-    <string name="text_failed_to_format">Échec du formatage</string>
-    <string name="text_comment">Commentaire</string>
+    <string name="text_only_latest_few_items_will_be_sent">Seuls les derniers %d éléments seront envoyés</string>
+    <string name="text_num_of_log_entries_exceeds_limit_for_sending">Le nombre d\'entrées de journal %d dépasse la limite d\'envoi</string>
+    <string name="text_failed_to_send_log_entries">Échec de l\'envoi des entrées de journal</string>
+    <string name="text_no_log_entries_to_send">Aucune entrée de journal à envoyer</string>
+    <string name="text_no_log_entries_to_export">Aucune entrée de journal à exporter</string>
+    <string name="text_no_log_entries_to_copy">Aucune entrée de journal à copier</string>
+    <string name="text_failed_to_copy">Échec de la copie</string>
+    <string name="text_already_copied_to_clip_but_only_latest_few_items">Déjà copié dans le presse-papiers (seulement les derniers %d éléments)</string>
+    <string name="text_failed_to_export_log_entries">Échec de l\'exportation des entrées de journal</string>
+    <string name="dialog_button_dismiss">Quitter</string>
+    <string name="dialog_button_view_file">Voir le fichier</string>
+    <string name="text_exported">Exporté</string>
+    <string name="text_some_items_exported">%d items exported</string>
+    <string name="text_app_shortcut_disabled">Ce raccourci est désactivé</string>
+    <string name="text_launcher_shortcuts">Raccourcis du lanceur</string>
+    <string name="description_launcher_shortcuts">Les raccourcis permettent d\'effectuer des actions spécifiques dans AutoJs6. Les utilisateurs peuvent afficher ces raccourcis dans un lanceur pris en charge et démarrer rapidement certaines tâches ou lancer une activité, comme la lecture de la documentation de l\'application AutoJs6, le lancement de la page de configuration d\'AutoJs6, etc.</string>
+    <string name="summary_text_launcher_shortcuts">Ajouter des raccourcis au lanceur</string>
+    <string name="text_pin_shortcut_not_unsupported">L\'épinglage de raccourcis dans le lanceur n\'est pas pris en charge</string>
+    <string name="text_template_apk_path">Chemin d\'accès APK du modèle</string>
+    <string name="text_shizuku_access_description">Shizuku vous permet d\'obtenir des privilèges ADB et d\'accéder aux API du système</string>
+    <string name="text_shizuku_access">Permissions de Shizuku</string>
+    <string name="text_grant_autojs6_access_in_shizuku_app">Accorder des privilèges AutoJs6 dans une application Shizuku</string>
+    <string name="text_revoke_autojs6_access_in_shizuku_app">Révoquer les privilèges AutoJs6 dans une application Shizuku</string>
+    <string name="text_shizuku_service_may_need_to_be_run_first">Il se peut que vous deviez d\'abord exécuter le service Shizuku</string>
+    <string name="error_shizuku_is_not_installed">Shizuku n\'est pas installé</string>
+    <string name="error_shizuku_version_is_not_supported">La version de Shizuku n\'est pas prise en charge</string>
+    <string name="error_failed_to_revoke_shizuku_access">La révocation des droits de Shizuku a échoué</string>
+    <string name="error_failed_to_grant_shizuku_access">Échec de l\'octroi de la permission de Shizuku</string>
+    <string name="error_unable_to_use_shizuku_service">Impossible d\'utiliser le service Shizuku</string>
 
     <plurals name="text_items_total_sum">
         <item quantity="one">Total: %d article</item>
+        <item quantity="many">Total: %d articles</item>
         <item quantity="other">Total: %d articles</item>
     </plurals>
 
     <plurals name="text_already_stop_n_scripts">
         <item quantity="one">%d script arrêté</item>
+        <item quantity="many">%d scripts arrêtés</item>
         <item quantity="other">%d scripts arrêtés</item>
     </plurals>
 

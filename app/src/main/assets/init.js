@@ -23,6 +23,7 @@ let Crypto = org.autojs.autojs.core.crypto.Crypto;
 let Image = org.autojs.autojs.core.image.ImageWrapper;
 let ColorTable = org.autojs.autojs.core.image.ColorTable;
 let Canvas = org.autojs.autojs.core.graphics.ScriptCanvas;
+let EventEmitter = org.autojs.autojs.core.eventloop.EventEmitter;
 let UiObject = org.autojs.autojs.core.automator.UiObject;
 let UiObjectCollection = org.autojs.autojs.core.automator.UiObjectCollection;
 let ImageWrapper = org.autojs.autojs.core.image.ImageWrapper;
@@ -33,6 +34,7 @@ let OkHttpClient = Packages.okhttp3.OkHttpClient;
 let ScriptInterruptedException = org.autojs.autojs.runtime.exception.ScriptInterruptedException;
 let ReentrantLock = java.util.concurrent.locks.ReentrantLock;
 let ScreenMetrics = org.autojs.autojs.runtime.api.ScreenMetrics;
+let ScriptRuntime = org.autojs.autojs.runtime.ScriptRuntime;
 let StandardCharsets = java.nio.charset.StandardCharsets;
 let WebView = android.webkit.WebView;
 let WebViewClient = android.webkit.WebViewClient;
@@ -45,12 +47,16 @@ let ColorUtils = org.autojs.autojs.util.ColorUtils;
 let TextUtils = org.autojs.autojs.util.TextUtils;
 let ProxyObject = org.autojs.autojs.rhino.ProxyObject;
 let ProxyJavaObject = org.autojs.autojs.rhino.ProxyJavaObject;
+let JavaScriptSource = org.autojs.autojs.script.JavaScriptSource;
 let NotificationManager = android.app.NotificationManager;
 let NotificationCompat = Packages.androidx.core.app.NotificationCompat;
 let SecurityException = java.lang.SecurityException;
+let FileProvider = androidx.core.content.FileProvider;
+let AppUtils = org.autojs.autojs.runtime.api.AppUtils;
 let Locale = java.util.Locale;
 let URI = java.net.URI;
 let File = java.io.File;
+let Uri = android.net.Uri;
 
 /* Global View classes. */
 
@@ -93,13 +99,6 @@ let JsWebView = org.autojs.autojs.core.ui.widget.JsWebView;
 /* Global assignment. */
 
 Object.assign(this, {
-    io: Packages.io,
-    okio: Packages.okio,
-    de: Packages.de,
-    ezy: Packages.ezy,
-    kotlin: Packages.kotlin,
-    okhttp3: Packages.okhttp3,
-    androidx: Packages.androidx,
     isNullish(o) {
         // nullish coalescing operator: ??
         return o === null || o === undefined;
@@ -358,15 +357,29 @@ Object.assign(this, {
                         __importClass__(typeof clazz === 'string' ? Packages[clazz] : clazz);
                     });
                 },
-                // 重定向 importPackage 使其支持字符串参数.
-                /**
-                 * @global
-                 */
-                importPackage() {
-                    Array.from(arguments).forEach(pkg => {
-                        __importPackage__(typeof pkg === 'string' ? Packages[pkg] : pkg);
-                    });
-                },
+                // FIXME by SuperMonster003 on Jul 27, 2023.
+                //  ! This makes importPackage() behave abnormally
+                //  ! when calling it in a JavaScript module,
+                //  ! even with "with" scope binding expression.
+                //  !
+                // // 重定向 importPackage 使其支持字符串参数.
+                // /**
+                //  * @global
+                //  */
+                // importPackage() {
+                //     let args = Array.from(arguments);
+                //     let expression =
+                //         'args.forEach((pkg) => {' + '\n' +
+                //         '    __importPackage__(typeof pkg === \'string\' ? Packages[pkg] : pkg);' + '\n' +
+                //         '});';
+                //     // @ScopeBinding
+                //     // noinspection WithStatementJS
+                //     with (context) {
+                //         return (/* @IIFE */ function () {
+                //             return eval(expression);
+                //         })();
+                //     }
+                // },
                 /**
                  * @global
                  */
@@ -483,13 +496,16 @@ Object.assign(this, {
                 /* ! Numberx < Mathx */
                 [ 'plugins', 'Arrayx', 'Numberx', 'Mathx' ],
 
-                /* ! ocr < images */
-                /* ! ocr < files */
-                [ 'ocr', 'paddle_ocr' ],
+                /* ! images < ocr */
+                /* ! images < barcode */
+                /* ! images < qrcode */
+                /* ! barcode < qrcode */
+                /* ! files < ocr */
+                [ 'ocr', 'barcode', 'qrcode' ],
 
                 /* Safe to put last regardless of the order, no guarantee ;). */
                 [ 'floaty', 'storages', 'device', 'recorder', 'toast' ],
-                [ 'media', 'sensors', 'events', 'base64', 'notice' ],
+                [ 'media', 'sensors', 'events', 'base64', 'notice', 'shizuku' ],
 
                 /* Last but not the least */
                 [ 'globals' ],
@@ -498,7 +514,7 @@ Object.assign(this, {
         bindPrologue() {
             // 重定向 require 以支持相对路径和 npm 模块.
             global.Module = require('jvm-npm');
-            global.require = id => Module.require(id);
+            global.require = Module.require;
 
             global.i18n.loadAll();
             global.i18n.setLocale('default');
