@@ -91,6 +91,14 @@ pluginManagement {
                 fallbackIdentifier to "1.8.21", /* May 3, 2023. */
             ),
         ),
+        "cli" to mapOf(
+            "android" to mapOf(
+                "fallback" to "8.1.2", /* Oct 30, 2023. */
+            ),
+            "kotlin" to mapOf(
+                "fallback" to "1.8.21", /* May 3, 2023. */
+            ),
+        )
     )
 
     val kspPluginVersionMap = mapOf(
@@ -147,7 +155,7 @@ pluginManagement {
 
     fun uppercaseFirstChar(s: String) = s[0].uppercase() + s.substring(1)
 
-    val unknownIdentifier = "unknown"
+    val unknownIdentifier = "cli"
     val unknownIdentifier1Up = uppercaseFirstChar(unknownIdentifier)
     val predictedIdentifier = "predicted"
     val unfocusedIdentifier = "unfocused"
@@ -157,6 +165,10 @@ pluginManagement {
 
     /* Nullable. */
     val platform = System.getProperty("idea.paths.selector") ?: System.getProperty("idea.platform.prefix")
+    if (platform == null) {
+        platform = "cli"
+    }
+    println("current platform: $platform")
 
     val isPlatformAS = platform?.startsWith(platformIdentifierForAS) == true
             || System.getProperty("idea.vendor.name").equals(vendorNameForAS, true)
@@ -166,7 +178,7 @@ pluginManagement {
     val platformType = when {
         isPlatformAS -> "as"
         isPlatformIdea -> "idea"
-        else -> throw Exception("$unknownIdentifier1Up platform: $platform")
+        else -> "cli"
     }
 
     val previewIdentifier = when {
@@ -180,7 +192,7 @@ pluginManagement {
     val platformVersion = (System.getProperty("idea.version") ?: when {
         isPlatformAS -> platform?.substring(platformIdentifierForAS.length)
         isPlatformIdea -> platform?.substring(platformIdentifierForIdea.length)
-        else -> null
+        else -> "cli"
     } ?: throw Exception("$unknownIdentifier1Up platform version"))
         .let { rawVersion ->
             platform?.let { rawVersion }
