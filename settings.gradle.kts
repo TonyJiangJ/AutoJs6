@@ -164,7 +164,7 @@ pluginManagement {
     val fallbackSuffix = " [$fallbackIdentifier]"
 
     /* Nullable. */
-    val platform = System.getProperty("idea.paths.selector") ?: System.getProperty("idea.platform.prefix")
+    var platform = System.getProperty("idea.paths.selector") ?: System.getProperty("idea.platform.prefix")
     if (platform == null) {
         platform = "cli"
     }
