@@ -136,6 +136,10 @@
             tools:targetApi="tiramisu">
 
         <meta-data
+                android:name="android.max_aspect"
+                android:value="2.1" />
+
+        <meta-data
                 android:name="CHANNEL"
                 android:value="${CHANNEL}" />
 
@@ -149,7 +153,9 @@
             <intent-filter>
 
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="${intentCategory}" />
+
             </intent-filter>
 
             <meta-data
@@ -159,6 +165,7 @@
 
         <activity
                 android:name="org.autojs.autojs.ui.main.MainActivity"
+                android:exported="true"
                 android:launchMode="singleTask"
                 android:theme="@style/AppTheme.FullScreen" />
 
@@ -169,9 +176,9 @@
                 android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
 
-                <category android:name="android.intent.category.DEFAULT" />
-
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
 
             </intent-filter>
         </activity>
@@ -232,9 +239,9 @@
 
             <intent-filter>
 
-                <category android:name="android.intent.category.DEFAULT" />
-
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
 
             </intent-filter>
 
@@ -607,16 +614,6 @@
         <activity
                 android:name="org.autojs.autojs.inrt.SettingsActivity"
                 android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${authorities}"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
 
         <!-- This provider is required by Shizuku, remove this if your app only supports Sui -->
         <provider
